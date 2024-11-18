@@ -1,4 +1,5 @@
-require('dotenv').config(); // Load environment variables from .env file
+// Load environment variables from .env file
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -23,11 +24,14 @@ const voterSchema = new mongoose.Schema({
   dob: Date,
   phoneNumber: String,
   aadharNumber: String,
+  voterId: { type: String, unique: true }, // Unique voter ID
   createdAt: { type: Date, default: Date.now }
 });
-
 const Voter = mongoose.model('Voter', voterSchema);
-
+// Function to generate a unique voter ID
+function generateUniqueVoterId() {
+  return `VOTER-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+}
 // Initialize Express app
 const app = express();
 app.use(bodyParser.json());
@@ -38,6 +42,24 @@ const otpStore = {}; // Temporarily store OTPs for each phone number
 // Generate OTP
 function generateOtp() {
   return Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit OTP
+}
+
+// Generate Unique Voter ID
+async function generateUniqueVoterId() {
+  let voterId;
+  let isUnique = false;
+
+  while (!isUnique) {
+    // Generate a random 8-character alphanumeric voter ID
+    voterId = Math.random().toString(36).substr(2, 8).toUpperCase();
+    
+    // Check if the voter ID already exists in the database
+    const existingVoter = await Voter.findOne({ voterId });
+    if (!existingVoter) {
+      isUnique = true; // Voter ID is unique
+    }
+  }
+  return voterId;
 }
 
 // Route to send OTP
@@ -66,6 +88,7 @@ app.post('/send-otp', (req, res) => {
       res.status(500).json({ success: false, error: `Failed to send OTP: ${error.message}` });
     });
 });
+
 // Route to get mobile number by Aadhaar
 app.post('/get-mobile-by-aadhaar', async (req, res) => {
   const { aadharNumber } = req.body;
@@ -89,9 +112,6 @@ app.post('/get-mobile-by-aadhaar', async (req, res) => {
   }
 });
 
-
-
-
 // Route to verify OTP
 app.post('/verify-otp', (req, res) => {
   const { phone, otp } = req.body;
@@ -112,28 +132,40 @@ app.post('/verify-otp', (req, res) => {
 app.post('/register', async (req, res) => {
   const { name, dob, phoneNumber, aadharNumber } = req.body;
 
-  // Validate the request data
   if (!name || !dob || !phoneNumber || !aadharNumber) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
   try {
-    // Create a new voter document
+    // Generate unique voter ID
+    const voterId = generateUniqueVoterId();
+
+    // Create and save the voter in the database
     const newVoter = new Voter({
       name,
       dob,
       phoneNumber,
-      aadharNumber
+      aadharNumber,
+      voterId, // Save the voter ID
     });
 
-    // Save the voter to the database
     await newVoter.save();
-    res.status(201).json({ message: 'Voter registered successfully', voter: newVoter });
+
+    // Send voter ID via Twilio
+    await client.messages.create({
+      body: `Hello ${name}! Your voter registration is successful. Your Voter ID is: ${voterId}. Please keep this ID safe.`,
+      from: twilioPhoneNumber,
+      to: phoneNumber,
+    });
+
+    console.log(`Voter ID ${voterId} sent to ${phoneNumber}`); // Debug log
+    res.status(201).json({ message: 'Voter registered successfully', voterId });
   } catch (error) {
     console.error('Error registering voter:', error);
-    res.status(500).json({ message: 'Error registering voter, please try again later' });
+    res.status(500).json({ message: 'Error registering voter, please try again later.' });
   }
 });
+
 
 // Start the server on port 5000
 const PORT = process.env.PORT || 5000;

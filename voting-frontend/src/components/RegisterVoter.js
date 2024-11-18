@@ -7,47 +7,38 @@ function RegisterVoter() {
     dob: '',
     phoneNumber: '',
     aadharNumber: '',
-    otp: '' // Add OTP field for verification
+    otp: '', // Add OTP field for verification
   });
   const [errors, setErrors] = useState({
     name: '',
     dob: '',
     phoneNumber: '',
     aadharNumber: '',
-    otp: '' // Add OTP error field
+    otp: '', // Add OTP error field
   });
   const [successMessage, setSuccessMessage] = useState('');
+  const [voterId, setVoterId] = useState(''); // Store Voter ID
   const [otpSent, setOtpSent] = useState(false); // Flag to track OTP status
   const [otpVerified, setOtpVerified] = useState(false); // Flag to track OTP verification status
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === "phoneNumber") {
-      // Ensure only the last 10 digits are entered by the user, and prepend +91
-      const formattedPhone = value.startsWith('+') ? '+' + value.slice(1).replace(/\D/g, '') : value.replace(/\D/g, '');
- // Keep only numbers and limit to 10 digits
-      setFormData({
-        ...formData,
-        phoneNumber: formattedPhone,
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
-    }
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
   };
-  
+
   const validateForm = () => {
     let formErrors = { name: '', dob: '', phoneNumber: '', aadharNumber: '' };
     let isValid = true;
-  
+
     // Name validation
     if (!formData.name) {
       formErrors.name = 'Name is required';
       isValid = false;
     }
-  
+
     // Date of birth validation (must be 18 or above)
     const dob = new Date(formData.dob);
     const age = new Date().getFullYear() - dob.getFullYear();
@@ -55,32 +46,29 @@ function RegisterVoter() {
       formErrors.dob = 'You must be at least 18 years old';
       isValid = false;
     }
-  
-    // Phone number validation (removed 10 digit requirement)
+
+    // Phone number validation
     if (!formData.phoneNumber) {
       formErrors.phoneNumber = 'Phone number is required';
       isValid = false;
     }
-  
+
     // Aadhar number validation (12 digits)
     if (!formData.aadharNumber || formData.aadharNumber.length !== 12) {
       formErrors.aadharNumber = 'Aadhar number must be 12 digits';
       isValid = false;
     }
-  
+
     setErrors(formErrors);
     return isValid;
   };
-  
-  
-  
 
   const sendOtp = async () => {
     if (!formData.phoneNumber) {
-      alert('Please enter a valid 10-digit phone number');
+      alert('Please enter a valid phone number');
       return;
     }
-    
+
     try {
       const response = await axios.post('http://localhost:5000/send-otp', { phone: formData.phoneNumber });
       setOtpSent(true); // Set OTP sent flag
@@ -99,7 +87,7 @@ function RegisterVoter() {
     try {
       const response = await axios.post('http://localhost:5000/verify-otp', {
         phone: formData.phoneNumber,
-        otp: formData.otp
+        otp: formData.otp,
       });
       setOtpVerified(true); // Set OTP verified flag
       alert('OTP verified successfully!');
@@ -110,26 +98,22 @@ function RegisterVoter() {
 
   const registerVoter = async (e) => {
     e.preventDefault();
-  
+
     if (validateForm()) {
       try {
-        // Prefix +91 to the phone number before sending to the backend
-        const phoneWithCountryCode = `+91${formData.phoneNumber}`;
-        
-        // Send the form data to the backend API with the correct phone number format
-        const response = await axios.post('http://localhost:5000/register', {
-          ...formData,
-          phoneNumber: phoneWithCountryCode,
-        });
-  
+        const response = await axios.post('http://localhost:5000/register', formData);
+
+        // Set success message and voter ID
         setSuccessMessage(response.data.message);
-  
+        setVoterId(response.data.voterId); // Extract voter ID from the response
+
         // Clear the form after successful registration
         setFormData({
           name: '',
           dob: '',
           phoneNumber: '',
-          aadharNumber: ''
+          aadharNumber: '',
+          otp: '',
         });
         setErrors({});
       } catch (error) {
@@ -137,7 +121,6 @@ function RegisterVoter() {
       }
     }
   };
-  
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -146,7 +129,14 @@ function RegisterVoter() {
           Register to Vote
         </h2>
         {successMessage && (
-          <div className="text-green-500 text-center mt-4">{successMessage}</div>
+          <div className="text-green-500 text-center mt-4">
+            {successMessage}
+            {voterId && (
+              <p className="mt-2">
+                Your Voter ID: <span className="font-bold">{voterId}</span>
+              </p>
+            )}
+          </div>
         )}
         {errors.general && (
           <div className="text-red-500 text-center mt-4">{errors.general}</div>
@@ -222,7 +212,7 @@ function RegisterVoter() {
               )}
             </div>
 
-            {/* OTP Field (Only shown after phone number is entered) */}
+            {/* OTP Field */}
             {otpSent && (
               <div className="mb-4">
                 <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
@@ -247,7 +237,7 @@ function RegisterVoter() {
               </div>
             )}
 
-            {/* Submit Button */}
+            {/* Register Button */}
             <button
               type="submit"
               className="w-full bg-[#0a0a5e] hover:bg-[#0a0a7e] text-white py-2 rounded mt-4"
@@ -257,7 +247,7 @@ function RegisterVoter() {
             </button>
           </form>
 
-          {/* OTP Send Button */}
+          {/* Send OTP Button */}
           {!otpSent && (
             <button
               type="button"
