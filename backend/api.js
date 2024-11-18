@@ -35,6 +35,7 @@ app.post('/register', (req, res) => {
 
 
 // Endpoint to cast a vote
+// Endpoint to cast a vote
 app.post('/vote', async (req, res) => {
   const { candidate } = req.body;
 
@@ -43,7 +44,7 @@ app.post('/vote', async (req, res) => {
     const loggedInUser = "testUser"; // Replace with authenticated user's identifier
 
     // Fetch voterId from MongoDB
-    const user = await User.findOne({ username: loggedInUser });
+    const user = await User.findOne({ name: loggedInUser });
     if (!user || !user.voterId) {
       return res.status(404).json({ error: 'Voter not found.' });
     }
@@ -60,6 +61,8 @@ app.post('/vote', async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
+
+
 
 // Endpoint to mine votes
 app.post('/mine', (req, res) => {

@@ -75,18 +75,19 @@ class VotingBlockChain {
   }
 
   addVote(vote) {
-    if(!vote.voterAddress || !vote.candidate) {
-      throw new Error('Vote must include voter address and candidate');
+    if (!vote.voterId || !vote.candidate) {
+      throw new Error('Vote must include voterId and candidate');
     }
-    if(!vote.isValid()) {
+    if (!vote.isValid()) {
       throw new Error('Cannot add invalid vote');
     }
-    if(this.voters.has(vote.voterAddress)) {
+    if (this.voters.has(vote.voterId)) {
       throw new Error('Voter has already cast a vote');
     }
     this.pendingVotes.push(vote);
-    this.voters.add(vote.voterAddress); // Prevents double voting
+    this.voters.add(vote.voterId); // Prevents double voting
   }
+  
 
   countVotes() {
     const voteCounts = {};
