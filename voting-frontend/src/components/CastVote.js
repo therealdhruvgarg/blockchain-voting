@@ -22,29 +22,51 @@ function CastVote() {
   };
 
   return (
-    <div>
-      <h2>Cast Vote</h2>
-      <input
-        type="text"
-        placeholder="Public Key"
-        value={publicKey}
-        onChange={(e) => setPublicKey(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Private Key"
-        value={privateKey}
-        onChange={(e) => setPrivateKey(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Candidate"
-        value={candidate}
-        onChange={(e) => setCandidate(e.target.value)}
-      />
-      <button onClick={castVote}>Cast Vote</button>
-      {message && <p>{message}</p>}
-    </div>
+    <div className="p-4 bg-gray-50 rounded-md shadow-md">
+  <h2 className="text-4xl font-semibold text-gray-800 mb-4 text-center">Cast Your Vote Here</h2>
+
+  <ul className="space-y-3">
+    <li className="flex items-center justify-between bg-gray-100 p-3 rounded shadow-sm mx-auto w-3/4">
+      <span className="text-gray-700 font-medium">BJP</span>
+      <button 
+        onClick={castVote} 
+        className="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
+      >
+        Cast Vote
+      </button>
+    </li>
+    <li className="flex items-center justify-between bg-gray-100 p-3 rounded shadow-sm mx-auto w-3/4">
+      <span className="text-gray-700 font-medium">CONGRESS</span>
+      <button 
+        onClick={castVote} 
+        className="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
+      >
+        Cast Vote
+      </button>
+    </li>
+    <li className="flex items-center justify-between bg-gray-100 p-3 rounded shadow-sm mx-auto w-3/4">
+      <span className="text-gray-700 font-medium">AAP</span>
+      <button 
+        onClick={castVote} 
+        className="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
+      >
+        Cast Vote
+      </button>
+    </li>
+    <li className="flex items-center justify-between bg-gray-100 p-3 rounded shadow-sm mx-auto w-3/4">
+      <span className="text-gray-700 font-medium">NOTA</span>
+      <button 
+        onClick={castVote} 
+        className="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
+      >
+        Cast Vote
+      </button>
+    </li>
+  </ul>
+
+  {message && <p className="mt-4 text-gray-600 text-sm text-center">{message}</p>}
+</div>
+
   );
 }
 

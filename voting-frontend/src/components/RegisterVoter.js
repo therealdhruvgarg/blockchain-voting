@@ -23,11 +23,30 @@ function RegisterVoter() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+  
+    if (name === "phoneNumber") {
+      // Ensure input always starts with +91
+      let formattedPhone = value.startsWith('+91') 
+        ? value 
+        : `+91${value.replace(/\D/g, '')}`; // Add +91 if missing
+  
+      // Remove non-numeric characters and limit to 10 digits after +91
+      const digitsOnly = formattedPhone.replace(/^\+91/, '').replace(/\D/g, '').slice(0, 10);
+  
+      formattedPhone = `+91${digitsOnly}`; // Final formatted phone number
+  
+      setFormData({
+        ...formData,
+        phoneNumber: formattedPhone,
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
+  
 
   const validateForm = () => {
     let formErrors = { name: "", dob: "", phoneNumber: "", aadharNumber: "" };
