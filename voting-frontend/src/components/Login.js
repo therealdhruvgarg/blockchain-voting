@@ -4,7 +4,7 @@ import "../index.css";
 import CastVote from "./CastVote";
 
 const Login = () => {
-  const [aadhaar, setAadhaar] = useState("");
+  const [voterId, setVoterId] = useState("");
   const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
@@ -15,10 +15,10 @@ const Login = () => {
   const [successMessage, setSuccessMessage] = useState("");
 
   // Handle Aadhaar submission to retrieve mobile number and send OTP via backend
-  const handleAadhaarSubmit = async () => {
+  const handleVoterIdSubmit = async () => {
     try {
       // Send Aadhaar number to the backend to get the mobile number
-      const response = await axios.post("http://localhost:5000/get-mobile-by-aadhaar", { aadharNumber: aadhaar });
+      const response = await axios.post("http://localhost:5000/get-mobile-by-voterId", { voterId: voterId });
   
       if (response.data.success) {
         setMobile(response.data.mobile);
@@ -35,7 +35,7 @@ const Login = () => {
         setError("Aadhaar number not found in the system.");
       }
     } catch (error) {
-      console.error("Error submitting Aadhaar:", error);
+      console.error("Error submitting Voter Id:", error);
       setError("Failed to retrieve mobile number. Try again.");
     }
   };
@@ -132,22 +132,22 @@ const Login = () => {
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700" htmlFor="aadhaar">
-                  Enter your 12-digit Aadhaar number
+                  Enter your Voter Id
                 </label>
                 <input
                   id="aadhaar"
                   type="text"
-                  placeholder="Enter your 12-digit Aadhaar number"
-                  value={aadhaar}
-                  onChange={(e) => setAadhaar(e.target.value)}
+                  placeholder="Enter your Voter Id"
+                  value={voterId}
+                  onChange={(e) => setVoterId(e.target.value)}
                   className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring focus:ring-blue-500"
                 />
               </div>
               <button
-                onClick={handleAadhaarSubmit}
+                onClick={handleVoterIdSubmit}
                 className="w-full bg-[#0a0a5e] hover:bg-[#0a0a7e] text-white py-2 rounded"
               >
-                Submit Aadhaar
+                Submit Voter Id
               </button>
             </div>
           ) : (

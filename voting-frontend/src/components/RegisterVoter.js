@@ -1,23 +1,23 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState } from "react";
+import axios from "axios";
 
 function RegisterVoter() {
   const [formData, setFormData] = useState({
-    name: '',
-    dob: '',
-    phoneNumber: '',
-    aadharNumber: '',
-    otp: '', // Add OTP field for verification
+    name: "",
+    dob: "",
+    phoneNumber: "",
+    aadharNumber: "",
+    otp: "", // Add OTP field for verification
   });
   const [errors, setErrors] = useState({
-    name: '',
-    dob: '',
-    phoneNumber: '',
-    aadharNumber: '',
-    otp: '', // Add OTP error field
+    name: "",
+    dob: "",
+    phoneNumber: "",
+    aadharNumber: "",
+    otp: "", // Add OTP error field
   });
-  const [successMessage, setSuccessMessage] = useState('');
-  const [voterId, setVoterId] = useState(''); // Store Voter ID
+  const [successMessage, setSuccessMessage] = useState("");
+  const [voterId, setVoterId] = useState(""); // Store Voter ID
   const [otpSent, setOtpSent] = useState(false); // Flag to track OTP status
   const [otpVerified, setOtpVerified] = useState(false); // Flag to track OTP verification status
 
@@ -30,12 +30,12 @@ function RegisterVoter() {
   };
 
   const validateForm = () => {
-    let formErrors = { name: '', dob: '', phoneNumber: '', aadharNumber: '' };
+    let formErrors = { name: "", dob: "", phoneNumber: "", aadharNumber: "" };
     let isValid = true;
 
     // Name validation
     if (!formData.name) {
-      formErrors.name = 'Name is required';
+      formErrors.name = "Name is required";
       isValid = false;
     }
 
@@ -43,19 +43,19 @@ function RegisterVoter() {
     const dob = new Date(formData.dob);
     const age = new Date().getFullYear() - dob.getFullYear();
     if (!formData.dob || age < 18) {
-      formErrors.dob = 'You must be at least 18 years old';
+      formErrors.dob = "You must be at least 18 years old";
       isValid = false;
     }
 
     // Phone number validation
     if (!formData.phoneNumber) {
-      formErrors.phoneNumber = 'Phone number is required';
+      formErrors.phoneNumber = "Phone number is required";
       isValid = false;
     }
 
     // Aadhar number validation (12 digits)
     if (!formData.aadharNumber || formData.aadharNumber.length !== 12) {
-      formErrors.aadharNumber = 'Aadhar number must be 12 digits';
+      formErrors.aadharNumber = "Aadhar number must be 12 digits";
       isValid = false;
     }
 
@@ -65,34 +65,36 @@ function RegisterVoter() {
 
   const sendOtp = async () => {
     if (!formData.phoneNumber) {
-      alert('Please enter a valid phone number');
+      alert("Please enter a valid phone number");
       return;
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/send-otp', { phone: formData.phoneNumber });
+      const response = await axios.post("http://localhost:5000/send-otp", {
+        phone: formData.phoneNumber,
+      });
       setOtpSent(true); // Set OTP sent flag
-      alert('OTP sent successfully!');
+      alert("OTP sent successfully!");
     } catch (error) {
-      alert('Failed to send OTP');
+      alert("Failed to send OTP");
     }
   };
 
   const verifyOtp = async () => {
     if (!formData.otp) {
-      alert('Please enter the OTP');
+      alert("Please enter the OTP");
       return;
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/verify-otp', {
+      const response = await axios.post("http://localhost:5000/verify-otp", {
         phone: formData.phoneNumber,
         otp: formData.otp,
       });
       setOtpVerified(true); // Set OTP verified flag
-      alert('OTP verified successfully!');
+      alert("OTP verified successfully!");
     } catch (error) {
-      alert('Invalid OTP');
+      alert("Invalid OTP");
     }
   };
 
@@ -101,7 +103,10 @@ function RegisterVoter() {
 
     if (validateForm()) {
       try {
-        const response = await axios.post('http://localhost:5000/register', formData);
+        const response = await axios.post(
+          "http://localhost:5000/register",
+          formData
+        );
 
         // Set success message and voter ID
         setSuccessMessage(response.data.message);
@@ -109,15 +114,17 @@ function RegisterVoter() {
 
         // Clear the form after successful registration
         setFormData({
-          name: '',
-          dob: '',
-          phoneNumber: '',
-          aadharNumber: '',
-          otp: '',
+          name: "",
+          dob: "",
+          phoneNumber: "",
+          aadharNumber: "",
+          otp: "",
         });
         setErrors({});
       } catch (error) {
-        setErrors({ general: 'Error registering voter. Please try again later.' });
+        setErrors({
+          general: "Error registering voter. Please try again later.",
+        });
       }
     }
   };
@@ -148,7 +155,10 @@ function RegisterVoter() {
           <form onSubmit={registerVoter}>
             {/* Name Field */}
             <div className="mb-4">
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Name
               </label>
               <input
@@ -159,12 +169,17 @@ function RegisterVoter() {
                 onChange={handleChange}
                 className="mt-1 p-2 w-full border rounded-md shadow-sm"
               />
-              {errors.name && <p className="text-red-500 text-xs">{errors.name}</p>}
+              {errors.name && (
+                <p className="text-red-500 text-xs">{errors.name}</p>
+              )}
             </div>
 
             {/* Date of Birth Field */}
             <div className="mb-4">
-              <label htmlFor="dob" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="dob"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Date of Birth
               </label>
               <input
@@ -175,12 +190,17 @@ function RegisterVoter() {
                 onChange={handleChange}
                 className="mt-1 p-2 w-full border rounded-md shadow-sm"
               />
-              {errors.dob && <p className="text-red-500 text-xs">{errors.dob}</p>}
+              {errors.dob && (
+                <p className="text-red-500 text-xs">{errors.dob}</p>
+              )}
             </div>
 
             {/* Phone Number Field */}
             <div className="mb-4">
-              <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="phoneNumber"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Phone Number
               </label>
               <input
@@ -191,12 +211,17 @@ function RegisterVoter() {
                 onChange={handleChange}
                 className="mt-1 p-2 w-full border rounded-md shadow-sm"
               />
-              {errors.phoneNumber && <p className="text-red-500 text-xs">{errors.phoneNumber}</p>}
+              {errors.phoneNumber && (
+                <p className="text-red-500 text-xs">{errors.phoneNumber}</p>
+              )}
             </div>
 
             {/* Aadhar Number Field */}
             <div className="mb-4">
-              <label htmlFor="aadharNumber" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="aadharNumber"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Aadhar Number
               </label>
               <input
@@ -213,9 +238,12 @@ function RegisterVoter() {
             </div>
 
             {/* OTP Field */}
-            {otpSent && (
+            {otpSent && !otpVerified && (
               <div className="mb-4">
-                <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="otp"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Enter OTP
                 </label>
                 <input
@@ -226,7 +254,9 @@ function RegisterVoter() {
                   onChange={handleChange}
                   className="mt-1 p-2 w-full border rounded-md shadow-sm"
                 />
-                {errors.otp && <p className="text-red-500 text-xs">{errors.otp}</p>}
+                {errors.otp && (
+                  <p className="text-red-500 text-xs">{errors.otp}</p>
+                )}
                 <button
                   type="button"
                   onClick={verifyOtp}
@@ -238,13 +268,14 @@ function RegisterVoter() {
             )}
 
             {/* Register Button */}
-            <button
-              type="submit"
-              className="w-full bg-[#0a0a5e] hover:bg-[#0a0a7e] text-white py-2 rounded mt-4"
-              disabled={!otpVerified}
-            >
-              Register
-            </button>
+            {otpVerified && (
+              <button
+                type="submit"
+                className="w-full bg-[#0a0a5e] hover:bg-[#0a0a7e] text-white py-2 rounded mt-4"
+              >
+                Register
+              </button>
+            )}
           </form>
 
           {/* Send OTP Button */}

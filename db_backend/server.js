@@ -29,9 +29,9 @@ const voterSchema = new mongoose.Schema({
 });
 const Voter = mongoose.model('Voter', voterSchema);
 // Function to generate a unique voter ID
-function generateUniqueVoterId() {
-  return `VOTER-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-}
+// function generateUniqueVoterId() {
+//   return `VOTER-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+// }
 // Initialize Express app
 const app = express();
 app.use(bodyParser.json());
@@ -90,16 +90,16 @@ app.post('/send-otp', (req, res) => {
 });
 
 // Route to get mobile number by Aadhaar
-app.post('/get-mobile-by-aadhaar', async (req, res) => {
-  const { aadharNumber } = req.body;
+app.post('/get-mobile-by-voterId', async (req, res) => {
+  const { voterId } = req.body;
 
-  if (!aadharNumber) {
-    return res.status(400).json({ error: 'Aadhaar number is required' });
+  if (!voterId) {
+    return res.status(400).json({ error: 'Voter ID is required' });
   }
 
   try {
-    // Find the voter by Aadhaar number
-    const voter = await Voter.findOne({ aadharNumber });
+    // Find the voter by Voter ID
+    const voter = await Voter.findOne({ voterId });
 
     if (voter) {
       res.json({ success: true, mobile: voter.phoneNumber });
@@ -107,10 +107,11 @@ app.post('/get-mobile-by-aadhaar', async (req, res) => {
       res.status(404).json({ success: false, message: 'Voter not found' });
     }
   } catch (error) {
-    console.error('Error fetching mobile number by Aadhaar:', error);
+    console.error('Error fetching mobile number by Voter ID:', error);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
+
 
 // Route to verify OTP
 app.post('/verify-otp', (req, res) => {
@@ -138,7 +139,7 @@ app.post('/register', async (req, res) => {
 
   try {
     // Generate unique voter ID
-    const voterId = generateUniqueVoterId();
+    const voterId = await  generateUniqueVoterId();
 
     // Create and save the voter in the database
     const newVoter = new Voter({
