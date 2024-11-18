@@ -1,72 +1,59 @@
-// src/components/CastVote.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 function CastVote() {
-  const [publicKey, setPublicKey] = useState('');
-  const [privateKey, setPrivateKey] = useState('');
   const [candidate, setCandidate] = useState('');
+  const [candidates, setCandidates] = useState([]);
   const [message, setMessage] = useState('');
 
+  // Fetch candidates from the backend
+  useEffect(() => {
+    const fetchCandidates = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/candidates');
+        setCandidates(response.data);
+      } catch (error) {
+        setMessage('Failed to load candidates.');
+      }
+    };
+
+    fetchCandidates();
+  }, []);
+
+  // Handle vote submission
   const castVote = async () => {
     try {
       const response = await axios.post('http://localhost:4000/vote', {
-        publicKey,
-        privateKey,
-        candidate,
+        candidate, // Only send the candidate; backend fetches voterId
       });
       setMessage(response.data.message);
     } catch (error) {
-      setMessage(error.response.data.error);
+      setMessage(error.response?.data?.error || 'An error occurred.');
     }
   };
 
   return (
-    <div className="p-4 bg-gray-50 rounded-md shadow-md">
-  <h2 className="text-4xl font-semibold text-gray-800 mb-4 text-center">Cast Your Vote Here</h2>
-
-  <ul className="space-y-3">
-    <li className="flex items-center justify-between bg-gray-100 p-3 rounded shadow-sm mx-auto w-3/4">
-      <span className="text-gray-700 font-medium">BJP</span>
-      <button 
-        onClick={castVote} 
-        className="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
-      >
-        Cast Vote
-      </button>
-    </li>
-    <li className="flex items-center justify-between bg-gray-100 p-3 rounded shadow-sm mx-auto w-3/4">
-      <span className="text-gray-700 font-medium">CONGRESS</span>
-      <button 
-        onClick={castVote} 
-        className="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
-      >
-        Cast Vote
-      </button>
-    </li>
-    <li className="flex items-center justify-between bg-gray-100 p-3 rounded shadow-sm mx-auto w-3/4">
-      <span className="text-gray-700 font-medium">AAP</span>
-      <button 
-        onClick={castVote} 
-        className="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
-      >
-        Cast Vote
-      </button>
-    </li>
-    <li className="flex items-center justify-between bg-gray-100 p-3 rounded shadow-sm mx-auto w-3/4">
-      <span className="text-gray-700 font-medium">NOTA</span>
-      <button 
-        onClick={castVote} 
-        className="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
-      >
-        Cast Vote
-      </button>
-    </li>
-  </ul>
-
-  {message && <p className="mt-4 text-gray-600 text-sm text-center">{message}</p>}
-</div>
-
+    <div>
+      <h1>Cast Your Vote</h1>
+      <div>
+        <label>Select Candidate:</label>
+        <select
+          value={candidate}
+          onChange={(e) => setCandidate(e.target.value)}
+        >
+          <option value="" disabled>
+            Choose a candidate
+          </option>
+          {candidates.map((cand, index) => (
+            <option key={index} value={cand}>
+              {cand}
+            </option>
+          ))}
+        </select>
+      </div>
+      <button onClick={castVote}>Cast Vote</button>
+      {message && <p>{message}</p>}
+    </div>
   );
 }
 

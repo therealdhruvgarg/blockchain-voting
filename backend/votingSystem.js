@@ -5,29 +5,22 @@ const { ec: EC } = pkg;
 const ec = new EC('secp256k1');
 
 class Vote {
-  constructor(voterAddress, candidate) {
-    this.voterAddress = voterAddress;
+  constructor(voterId, candidate) {
+    this.voterId = voterId;
     this.candidate = candidate;
+    this.signature = this.calculateHash(); // Use the hash of voterId and candidate as the "signature"
   }
+
   calculateHash() {
-    return SHA256(this.voterAddress + this.candidate).toString();
+    return SHA256(this.voterId + this.candidate).toString();
   }
-  signVote(signingKey) {
-    if(signingKey.getPublic('hex') !== this.voterAddress) {
-      throw new Error('You cannot sign votes for other voters!');
-    }
-    const hashVote = this.calculateHash();
-    const sig = signingKey.sign(hashVote, 'base64');
-    this.signature = sig.toDER('hex');
-  }
+
   isValid() {
-    if (!this.signature || this.signature.length === 0) {
-      throw new Error('No signature in this vote');
-    }   
-    const publicKey = ec.keyFromPublic(this.voterAddress, 'hex');  
-    return publicKey.verify(this.calculateHash(), this.signature);
+    // Check if the signature matches the calculated hash
+    return this.signature === this.calculateHash();
   }
 }
+
 
 class Block {
   constructor(timestamp, votes, previousHash = "") {

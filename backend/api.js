@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import express from 'express';
 import cors from 'cors';
 import { VotingBlockChain, Vote, ec } from './votingSystem.js';
@@ -11,22 +12,48 @@ app.use(express.json());
 
 const votingSystem = new VotingBlockChain();
 
-// Endpoint to register a voter
-app.post('/register', (req, res) => {
-  const keyPair = ec.genKeyPair();
-  const publicKey = keyPair.getPublic('hex');
-  const privateKey = keyPair.getPrivate('hex');
-  res.json({ publicKey, privateKey });
+
+// Assuming a Mongoose schema for users
+const User = mongoose.model('User', new mongoose.Schema({
+  username: String,
+  voterId: String, // Stores the voterId
+}));
+
+// Endpoint to get a list of candidates
+app.get('/candidates', (req, res) => {
+  const candidates = ["BJP", "Congress", "AAP"];
+  res.json(candidates);
 });
 
+
+// Endpoint to register a voter
+// Endpoint to register a voter
+app.post('/register', (req, res) => {
+  const voterId = SHA256(Date.now() + Math.random().toString()).toString();
+  res.json({ voterId });
+});
+
+
 // Endpoint to cast a vote
-app.post('/vote', (req, res) => {
-  const { publicKey, privateKey, candidate } = req.body;
-  const signingKey = ec.keyFromPrivate(privateKey);
-  const vote = new Vote(publicKey, candidate);
-  vote.signVote(signingKey);
+app.post('/vote', async (req, res) => {
+  const { candidate } = req.body;
 
   try {
+    // Simulate user authentication (replace with actual user identifier logic)
+    const loggedInUser = "testUser"; // Replace with authenticated user's identifier
+
+    // Fetch voterId from MongoDB
+    const user = await User.findOne({ username: loggedInUser });
+    if (!user || !user.voterId) {
+      return res.status(404).json({ error: 'Voter not found.' });
+    }
+
+    const voterId = user.voterId;
+
+    // Create a new vote instance
+    const vote = new Vote(voterId, candidate);
+
+    // Add the vote to the blockchain
     votingSystem.addVote(vote);
     res.json({ message: 'Vote cast successfully.' });
   } catch (error) {
