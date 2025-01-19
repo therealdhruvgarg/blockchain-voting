@@ -32,16 +32,16 @@ const navbar = () => {
           </Link>
         </div>
         <nav className="hidden md:flex space-x-4">
-          <Link className="hover:text-[#FF9933]" to="/">
-            Home
+          <Link className="hover:text-[#FF9933]" to="/login">
+            Login
           </Link>
-          <Link className="hover:text-[#FF9933]" to="#">
+          <Link className="hover:text-[#FF9933]" to="/process">
             Process
           </Link>
-          <Link className="hover:text-[#FF9933]" to="#">
+          <Link className="hover:text-[#FF9933]" to="/help">
             Help
           </Link>
-          <Link className="hover:text-[#FF9933]" to="#">
+          <Link className="hover:text-[#FF9933]" to="/contact">
             Contact Us
           </Link>
         </nav>
